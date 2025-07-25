@@ -1,0 +1,15 @@
+runtime: python39
+
+env_variables:
+  PYTHONPATH: /app
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
+    redirect_http_response_code: 301
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6
