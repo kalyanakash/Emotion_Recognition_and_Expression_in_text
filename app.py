@@ -52,6 +52,12 @@ tokenizer, label_encoder, max_length = setup_tokenizer_and_encoder(texts, labels
 @st.cache_resource
 def load_model():
     try:
+        # Check if model files exist
+        import os
+        if not os.path.exists("model_architecture.json"):
+            st.error("❌ model_architecture.json not found in repository")
+            return None
+            
         with open("model_architecture.json", "r") as json_file:
             loaded_model_json = json_file.read()
         
@@ -62,13 +68,15 @@ def load_model():
         weights_loaded = False
         
         for weight_file in weight_files:
-            try:
-                loaded_model.load_weights(weight_file)
-                weights_loaded = True
-                st.success(f"✅ Model loaded successfully with weights from {weight_file}")
-                break
-            except:
-                continue
+            if os.path.exists(weight_file):
+                try:
+                    loaded_model.load_weights(weight_file)
+                    weights_loaded = True
+                    print(f"✅ Model loaded successfully with weights from {weight_file}")
+                    break
+                except Exception as e:
+                    print(f"Failed to load {weight_file}: {str(e)}")
+                    continue
         
         if not weights_loaded:
             st.error("❌ Could not load model weights from any available file")
