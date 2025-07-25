@@ -12,27 +12,77 @@ import plotly.graph_objects as go
 from datetime import datetime
 import time
 
-# Load and preprocess the data
-data = pd.read_csv("train.txt", sep=';')
-data.columns = ["Text", "Emotions"]
+# Load and preprocess the data with error handling
+@st.cache_data
+def load_training_data():
+    try:
+        data = pd.read_csv("train.txt", sep=';')
+        data.columns = ["Text", "Emotions"]
+        return data
+    except FileNotFoundError:
+        st.error("Training data file not found. Please ensure train.txt is in the repository.")
+        return None
+    except Exception as e:
+        st.error(f"Error loading training data: {str(e)}")
+        return None
+
+# Initialize data loading
+data = load_training_data()
+if data is None:
+    st.stop()
 
 texts = data["Text"].tolist()
 labels = data["Emotions"].tolist()
 
 # Tokenizer and Label Encoder setup
-tokenizer = Tokenizer()
-tokenizer.fit_on_texts(texts)
-max_length = max([len(seq) for seq in tokenizer.texts_to_sequences(texts)])
+@st.cache_resource
+def setup_tokenizer_and_encoder(texts, labels):
+    tokenizer = Tokenizer()
+    tokenizer.fit_on_texts(texts)
+    max_length = max([len(seq) for seq in tokenizer.texts_to_sequences(texts)])
+    
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(labels)
+    
+    return tokenizer, label_encoder, max_length
 
-label_encoder = LabelEncoder()
-labels = label_encoder.fit_transform(labels)
+tokenizer, label_encoder, max_length = setup_tokenizer_and_encoder(texts, labels)
 
-# Load the saved model architecture and weights
-with open("model_architecture.json", "r") as json_file:
-    loaded_model_json = json_file.read()
+# Load the saved model architecture and weights with error handling
+@st.cache_resource
+def load_model():
+    try:
+        with open("model_architecture.json", "r") as json_file:
+            loaded_model_json = json_file.read()
+        
+        loaded_model = model_from_json(loaded_model_json)
+        
+        # Try loading weights from different possible files
+        weight_files = ["model_weights.h5", "model_weights.weights.h5"]
+        weights_loaded = False
+        
+        for weight_file in weight_files:
+            try:
+                loaded_model.load_weights(weight_file)
+                weights_loaded = True
+                st.success(f"✅ Model loaded successfully with weights from {weight_file}")
+                break
+            except:
+                continue
+        
+        if not weights_loaded:
+            st.error("❌ Could not load model weights from any available file")
+            return None
+            
+        return loaded_model
+    except Exception as e:
+        st.error(f"❌ Error loading model: {str(e)}")
+        return None
 
-loaded_model = model_from_json(loaded_model_json)
-loaded_model.load_weights("model_weights.h5")
+loaded_model = load_model()
+if loaded_model is None:
+    st.error("Model failed to load. Please check if model files are present.")
+    st.stop()
 
 # Define CSS styles with modern design
 css = """
