@@ -11,12 +11,13 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Install requirements if needed
+REM Install/update requirements
 echo 📦 Installing/updating requirements...
-pip install -r requirements.txt --quiet
+pip install streamlit pandas numpy tensorflow plotly scikit-learn --quiet
 
 if %errorlevel% neq 0 (
     echo ❌ Failed to install requirements
+    echo 💡 Try running: pip install --upgrade pip
     pause
     exit /b 1
 )

@@ -104,7 +104,9 @@ css = """
 }
 
 .emotion-happy { background: linear-gradient(45deg, #FFD700, #FFA500); color: #333; }
+.emotion-joy { background: linear-gradient(45deg, #FFD700, #FFA500); color: #333; }
 .emotion-sad { background: linear-gradient(45deg, #4682B4, #1E90FF); color: white; }
+.emotion-sadness { background: linear-gradient(45deg, #4682B4, #1E90FF); color: white; }
 .emotion-anger { background: linear-gradient(45deg, #FF6347, #DC143C); color: white; }
 .emotion-fear { background: linear-gradient(45deg, #9370DB, #8A2BE2); color: white; }
 .emotion-surprise { background: linear-gradient(45deg, #FF69B4, #FF1493); color: white; }
@@ -161,28 +163,34 @@ css = """
 </style>
 """
 
-# Enhanced emoji mapping for emotions
+# Enhanced emoji mapping for emotions (updated to match training data)
 emotion_emojis = {
-    "happy": "😊",
-    "sad": "😢",
+    "joy": "😊",
+    "sadness": "😢", 
     "anger": "😡",
     "fear": "😨",
     "surprise": "😮",
     "love": "❤️",
     "disgust": "🤢",
-    "neutral": "😐"
+    "neutral": "😐",
+    # Additional mappings for potential other emotions
+    "happy": "😊",
+    "sad": "😢"
 }
 
-# Color mapping for emotions
+# Color mapping for emotions (updated to match training data)
 emotion_colors = {
-    "happy": "#FFD700",
-    "sad": "#4682B4", 
+    "joy": "#FFD700",
+    "sadness": "#4682B4", 
     "anger": "#FF6347",
     "fear": "#9370DB",
     "surprise": "#FF69B4",
     "love": "#FF1493",
     "disgust": "#8FBC8F",
-    "neutral": "#D3D3D3"
+    "neutral": "#D3D3D3",
+    # Additional mappings
+    "happy": "#FFD700",
+    "sad": "#4682B4"
 }
 
 # Function to preprocess input text
@@ -219,11 +227,10 @@ def create_confidence_chart(emotion_names, confidence_scores):
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family="Poppins", size=12),
         height=400,
-        margin=dict(l=20, r=20, t=60, b=20)
+        margin=dict(l=20, r=20, t=60, b=20),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='rgba(128,128,128,0.2)')
     )
-    
-    fig.update_xaxis(showgrid=False)
-    fig.update_yaxis(showgrid=True, gridcolor='rgba(128,128,128,0.2)')
     
     return fig
 
